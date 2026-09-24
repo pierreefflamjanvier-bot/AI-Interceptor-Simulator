@@ -1,3 +1,5 @@
+#dans l'algorythme de pure poursuite, l'intercepteur se dirige toujours vers la position actuelle de la cible. Cela peut entraîner des trajectoires en zigzag si la cible change de direction fréquemment.
+
 import math
 from guidance.base_strategy import GuidanceStrategy
 

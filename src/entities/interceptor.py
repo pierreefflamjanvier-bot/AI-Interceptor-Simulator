@@ -5,6 +5,8 @@ class Interceptor:
         self.speed = speed
         self.strategy = strategy
         self.history=[]
+        self.finished= False
+        self.interception_time=None
          
 
     def update(self, dt, target):
