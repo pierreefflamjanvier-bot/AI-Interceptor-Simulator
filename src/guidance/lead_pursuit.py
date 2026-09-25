@@ -8,15 +8,15 @@ from guidance.base_strategy import GuidanceStrategy
 
 class LeadPursuit(GuidanceStrategy):
 
-    def compute_direction(self,interceptor,target):
+    def compute_direction(self,interceptor,track):
 
-        distance = math.sqrt((target.x - interceptor.x)**2+(target.y - interceptor.y)**2)
+        distance = math.sqrt((track.x - interceptor.x)**2+(track.y - interceptor.y)**2)
 
         prediction_time = (distance/interceptor.speed)
 
-        future_x = (target.x+target.vx * prediction_time)
+        future_x = (track.x+track.vx * prediction_time)
 
-        future_y = (target.y+target.vy * prediction_time)
+        future_y = (track.y+track.vy * prediction_time)
 
         dx = future_x - interceptor.x
         dy = future_y - interceptor.y

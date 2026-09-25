@@ -4,27 +4,20 @@ import math
 from guidance.base_strategy import GuidanceStrategy
 class ProportionalNavigation(GuidanceStrategy):
 
-    def compute_direction(self,interceptor,target):
-        dx = target.x - interceptor.x
-        dy = target.y - interceptor.y
-        distance = math.sqrt(dx**2 + dy**2)
-        if distance == 0:
-            return 0, 0
-
-        # Position future plus courte
-        prediction_time = (distance/interceptor.speed) * 0.5
-
-        future_x = (target.x+ target.vx * prediction_time)
-        future_y = (target.y+ target.vy * prediction_time)
-
-        dx = future_x - interceptor.x
-        dy = future_y - interceptor.y
-
-        distance = math.sqrt(dx**2 + dy**2)
-            
-        if distance == 0:
-            return 0, 0
-
-        return (dx / distance,dy / distance)
+    def __init__(self):
+        self.previous_los_angle=None
+        self.N=4
+    
+    def compute_direction(self,interceptor,track):
+        dx = track.x - interceptor.x
+        dy = track.y - interceptor.y
+        los_angle=math.atan2(dy,dx)
+        if self.previous_los_angle is None:
+            self.previous_los_angle = los_angle
+            return (math.cos(los_angle),math.sin(los_angle))
+        los_rate = (los_angle-self.previous_los_angle)
+        self.previous_los_angle = los_angle
+        commanded_angle = los_angle+self.N * los_rate
+        return (math.cos(commanded_angle),math.sin(commanded_angle))
             
             

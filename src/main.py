@@ -4,6 +4,9 @@ import math
 from entities.target import Target
 from entities.interceptor import Interceptor
 
+from simulation.sensor import Sensor
+from simulation.track import Track
+
 from guidance.pure_pursuit import PurePursuit
 from guidance.lead_pursuit import LeadPursuit
 from guidance.proportional_navigation import ProportionalNavigation
@@ -29,11 +32,13 @@ clock = pygame.time.Clock()
 # ENTITES
 # ==================================================
 
-target = Target(x=900,y=400,vx=-160,vy=60)
+target = Target(x=900,y=500,speed=120,heading=180, turn_rate=25)
 interceptor_red = Interceptor(x=200,y=200,speed=150,strategy=PurePursuit())
 interceptor_blue = Interceptor(x=200,y=200,speed=150,strategy=LeadPursuit())
 interceptor_green = Interceptor(x=200,y=200,speed=150,strategy=ProportionalNavigation())    
 
+sensor = Sensor(position_noise=10)
+track=Track()
 # ==================================================
 # VARIABLES
 # ==================================================
@@ -74,14 +79,17 @@ while running:
 
         target.update(dt)
 
+        measurement=sensor.observe(target)
+        track.update(measurement)
+
         if not interceptor_red.finished:
-            interceptor_red.update(dt, target)
+            interceptor_red.update(dt, track)
 
         if not interceptor_blue.finished:
-            interceptor_blue.update(dt, target)
+            interceptor_blue.update(dt, track)
 
         if not interceptor_green.finished:
-            interceptor_green.update(dt, target)
+            interceptor_green.update(dt, track)
 
         # ------------------------------------------
         # DISTANCES
@@ -158,7 +166,10 @@ while running:
     pygame.draw.circle(screen,(0, 0, 255),(int(interceptor_blue.x), int(interceptor_blue.y)),8)
 
     pygame.draw.circle(screen,(0, 180, 0),(int(interceptor_green.x), int(interceptor_green.y)),8)   
-        
+
+    pygame.draw.circle(screen,(255,165,0),(int(measurement[0]), int(measurement[1])),4)
+
+    pygame.draw.circle(screen,(255,0,255),(int(track.x), int(track.y)),4)   
     # ----------------------------------------------
     # CHRONO
     # ----------------------------------------------
