@@ -14,10 +14,12 @@ class ProportionalNavigation(GuidanceStrategy):
         los_angle=math.atan2(dy,dx)
         if self.previous_los_angle is None:
             self.previous_los_angle = los_angle
-            return (math.cos(los_angle),math.sin(los_angle))
+            return math.degrees(los_angle)
         los_rate = (los_angle-self.previous_los_angle)
         self.previous_los_angle = los_angle
         commanded_angle = los_angle+self.N * los_rate
-        return (math.cos(commanded_angle),math.sin(commanded_angle))
-            
+        desired_heading = math.degrees(commanded_angle)
+        return desired_heading
+
+
             

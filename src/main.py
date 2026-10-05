@@ -32,12 +32,12 @@ clock = pygame.time.Clock()
 # ENTITES
 # ==================================================
 
-target = Target(x=900,y=500,speed=120,heading=180, turn_rate=25)
-interceptor_red = Interceptor(x=200,y=200,speed=150,strategy=PurePursuit())
-interceptor_blue = Interceptor(x=200,y=200,speed=150,strategy=LeadPursuit())
-interceptor_green = Interceptor(x=200,y=200,speed=150,strategy=ProportionalNavigation())    
+target = Target(x=900,y=400,speed=180,heading=180, turn_rate=90)
+interceptor_red = Interceptor(x=200,y=200,speed=220,strategy=PurePursuit(),heading=0,max_turn_rate=120,max_acceleration=200)
+interceptor_blue = Interceptor(x=200,y=200,speed=220,strategy=LeadPursuit(),heading=0,max_turn_rate=120,max_acceleration=200)
+interceptor_green = Interceptor(x=200,y=200,speed=220,strategy=ProportionalNavigation(),heading=0,max_turn_rate=120,max_acceleration=200)
 
-sensor = Sensor(position_noise=10)
+sensor = Sensor(position_noise=30)
 track=Track()
 # ==================================================
 # VARIABLES
@@ -162,7 +162,11 @@ while running:
     pygame.draw.circle(screen,(0, 0, 0),(int(target.x), int(target.y)),8)
         
     pygame.draw.circle(screen,(255, 0, 0),(int(interceptor_red.x), int(interceptor_red.y)),8)
-        
+    line_length=30
+    end_x=interceptor_red.x+line_length*math.cos(math.radians(interceptor_red.heading))
+    end_y=interceptor_red.y+line_length*math.sin(math.radians(interceptor_red.heading)) 
+    pygame.draw.line(screen,(255, 0, 0),(int(interceptor_red.x), int(interceptor_red.y)),(int(end_x), int(end_y)),2)    
+
     pygame.draw.circle(screen,(0, 0, 255),(int(interceptor_blue.x), int(interceptor_blue.y)),8)
 
     pygame.draw.circle(screen,(0, 180, 0),(int(interceptor_green.x), int(interceptor_green.y)),8)   
@@ -181,6 +185,14 @@ while running:
     # ----------------------------------------------
     # LEGENDE
     # ----------------------------------------------
+    heading_red=font.render(f"Cap Rouge:{interceptor_red.heading:.1f}",True,(255,0,0))
+    screen.blit(heading_red,(20, 250))
+
+    heading_blue=font.render(f"Cap Bleu:{interceptor_blue.heading:.1f}",True,(0,0,255))
+    screen.blit(heading_blue,(20, 300))
+
+    heading_green=font.render(f"Cap Vert:{interceptor_green.heading:.1f}",True,(0,180,0))
+    screen.blit(heading_green,(20, 350))
 
     screen.blit(font.render("Noir : Cible",True,(0, 0, 0)),(20, 60))
     screen.blit(font.render("Rouge : Pure Pursuit",True,(255, 0, 0)),(20, 100))

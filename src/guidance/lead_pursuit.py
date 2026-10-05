@@ -26,4 +26,5 @@ class LeadPursuit(GuidanceStrategy):
         if distance == 0:
             return 0, 0
 
-        return (dx / distance,dy / distance)
+        desired_heading = math.degrees(math.atan2(dy, dx))
+        return desired_heading

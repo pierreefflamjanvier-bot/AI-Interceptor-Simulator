@@ -20,20 +20,7 @@ class PurePursuit(GuidanceStrategy):
 
         if distance == 0:
             return 0, 0
-
-        return (
-            dx / distance,
-            dy / distance
-        )
-
-    def compute_direction(self, interceptor, target):
-
-        dx=target.x-interceptor.x
-        dy=target.y-interceptor.y
-
-        distance = math.sqrt(dx**2 + dy**2)
-
-        if distance==0:
-            return 0, 0
-
-        return dx/distance,dy/distance
+    
+        desired_heading = math.degrees(math.atan2(dy, dx))
+        return desired_heading
+    
