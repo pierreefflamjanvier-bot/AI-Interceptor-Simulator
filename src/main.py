@@ -32,12 +32,12 @@ clock = pygame.time.Clock()
 # ENTITES
 # ==================================================
 
-target = Target(x=900,y=400,speed=180,heading=180, turn_rate=90)
-interceptor_red = Interceptor(x=200,y=200,speed=220,strategy=PurePursuit(),heading=0,max_turn_rate=120,max_acceleration=200)
-interceptor_blue = Interceptor(x=200,y=200,speed=220,strategy=LeadPursuit(),heading=0,max_turn_rate=120,max_acceleration=200)
-interceptor_green = Interceptor(x=200,y=200,speed=220,strategy=ProportionalNavigation(),heading=0,max_turn_rate=120,max_acceleration=200)
+target = Target(x=1000,y=400,speed=150,heading=180, turn_rate=-5)
+interceptor_red = Interceptor(x=400,y=200,speed=200,strategy=PurePursuit(),heading=0,max_turn_rate=120,max_acceleration=220)
+interceptor_blue = Interceptor(x=400,y=200,speed=200,strategy=LeadPursuit(),heading=0,max_turn_rate=120,max_acceleration=220)
+interceptor_green = Interceptor(x=400,y=200,speed=200,strategy=ProportionalNavigation(),heading=0,max_turn_rate=120,max_acceleration=220)
 
-sensor = Sensor(position_noise=30)
+sensor = Sensor(position_noise=30, detection_range=700)
 track=Track()
 # ==================================================
 # VARIABLES
@@ -46,6 +46,7 @@ track=Track()
 running = True
 elapsed_time = 0
 simulation_finished = False
+MAX_TIME= 60
 
 distance_red = 0
 distance_blue = 0
@@ -72,6 +73,8 @@ while running:
     # ----------------------------------------------
     # UPDATE
     # ----------------------------------------------
+    if elapsed_time>MAX_TIME:
+        simulation_finshed=True
 
     if not simulation_finished:
 
@@ -79,8 +82,10 @@ while running:
 
         target.update(dt)
 
-        measurement=sensor.observe(target)
-        track.update(measurement)
+        measurement=sensor.observe(target,interceptor_red)
+        print (measurement)
+        target_visible=(measurement is not None)
+        track.update(measurement,dt)
 
         if not interceptor_red.finished:
             interceptor_red.update(dt, track)
@@ -170,10 +175,10 @@ while running:
     pygame.draw.circle(screen,(0, 0, 255),(int(interceptor_blue.x), int(interceptor_blue.y)),8)
 
     pygame.draw.circle(screen,(0, 180, 0),(int(interceptor_green.x), int(interceptor_green.y)),8)   
-
-    pygame.draw.circle(screen,(255,165,0),(int(measurement[0]), int(measurement[1])),4)
-
-    pygame.draw.circle(screen,(255,0,255),(int(track.x), int(track.y)),4)   
+    if measurement is not None:
+        pygame.draw.circle(screen,(255,165,0),(int(measurement[0]), int(measurement[1])),4)
+    if target_visible:
+        pygame.draw.circle(screen,(255,0,255),(int(track.x), int(track.y)),4)   
     # ----------------------------------------------
     # CHRONO
     # ----------------------------------------------
@@ -198,6 +203,16 @@ while running:
     screen.blit(font.render("Rouge : Pure Pursuit",True,(255, 0, 0)),(20, 100))
     screen.blit(font.render("Bleu : Lead Pursuit",True,(0, 0, 255)),(20, 140))
     screen.blit(font.render("Vert : Proportional Navigation",True,(0, 180, 0)),(20, 180)) 
+    
+    if target_visible:
+        visibility_text=font.render("VISIBLE",True,(0,180,0))
+    else:
+        visibility_text=font.render("LOST",True,(255,0,0))
+    screen.blit(visibility_text,(20, 3200))
+
+    track_text=font.render(f"Track : ({track.x:.1f},{track.y:.1f})",True,(255,0,255))
+    screen.blit(track_text,(20, 400))
+    track_valid_text=font.render("TRACK VALI" if track.valid else "TRACK LOST",True,(0,255,0) if track.valid else (255,0,0))
 
     # ----------------------------------------------
     # RESULTATS
