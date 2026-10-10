@@ -65,4 +65,4 @@ def draw_results_panel(
             winner = "PROPORTIONAL NAVIGATION"
 
     winner_text = font.render(f"Gagnant : {winner}",True,(0, 150, 0))
-    screen.blit(winner_text,(DEBUG_X-400,900 ))
+    screen.blit(winner_text,(DEBUG_X-500,900 ))

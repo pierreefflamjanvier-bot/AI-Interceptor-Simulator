@@ -45,7 +45,7 @@ interceptor_red = Interceptor(x=400,y=200,speed=200,strategy=PurePursuit(),headi
 interceptor_blue = Interceptor(x=400,y=200,speed=200,strategy=LeadPursuit(),heading=0,max_turn_rate=120,max_acceleration=220)
 interceptor_green = Interceptor(x=400,y=200,speed=200,strategy=ProportionalNavigation(),heading=0,max_turn_rate=120,max_acceleration=220)
 
-sensor = Sensor(position_noise=30, detection_range=700, field_of_view=180)
+sensor = Sensor(position_noise=30, detection_range=700, field_of_view=180,visual_lock_range=100,visual_noise=2)
 track=Track()
 # ==================================================
 # VARIABLES
@@ -148,37 +148,20 @@ while running:
         if (interceptor_red.finished and interceptor_blue.finished and interceptor_green.finished):
             simulation_finished = True
 
-    # ----------------------------------------------
-    # AFFICHAGE
-    # ----------------------------------------------
+# ----------------------------------------------
+# AFFICHAGE
+# ----------------------------------------------
 
     screen.fill((255, 255, 255))
 
     # ----------------------------------------------
     # TRAJECTOIRES
     # ----------------------------------------------
-    draw_trajectories(
-        screen,
-        target,
-        interceptor_red,
-        interceptor_blue,
-        interceptor_green
-    )
-
+    draw_trajectories(screen, target,interceptor_red,interceptor_blue,interceptor_green)
     # ----------------------------------------------
     # ENTITES
     # ----------------------------------------------
-
-    draw_entities(
-        screen,
-        target,
-        interceptor_red,
-        interceptor_blue,
-        interceptor_green,
-        measurement,
-        track,
-        target_visible
-    ) 
+    draw_entities(screen,target,interceptor_red,interceptor_blue,interceptor_green,measurement,track,target_visible) 
     # ----------------------------------------------
     # CHRONO
     # ----------------------------------------------
@@ -192,30 +175,9 @@ while running:
     # ----------------------------------------------
 
     DEBUG_X=SIM_WIDTH+20
-    draw_debug_panel(
-        screen,
-        font,
-        DEBUG_X,
-        sensor,
-        track,
-        interceptor_red,
-        interceptor_blue,
-        interceptor_green,
-        target_visible
-    )
-    draw_results_panel(
-        screen,
-        font,
-        DEBUG_X,
-        interceptor_red,
-        interceptor_blue,
-        interceptor_green,
-        simulation_finished
-    )
+    draw_debug_panel(screen,font,DEBUG_X,sensor,track,interceptor_red,interceptor_blue,interceptor_green,target_visible)
+    draw_results_panel(screen,font,DEBUG_X,interceptor_red, interceptor_blue,interceptor_green, simulation_finished)
     
-            
-            
-
     pygame.display.flip()
 
 pygame.quit()

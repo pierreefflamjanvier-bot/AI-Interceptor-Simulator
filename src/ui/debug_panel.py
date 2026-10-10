@@ -34,10 +34,15 @@ def draw_debug_panel(screen,font,DEBUG_X,sensor,track,interceptor_red,intercepto
 
     if target_visible:
         visibility_text = font.render("VISIBLE",True,(0, 180, 0))
+        if sensor.visual_lock:
+            lock_text = font.render("VISUALLOCKED",True,(0, 180, 255))
+        else:
+            lock_text = font.render("TRACK MODE",True,(255, 0, 0))
     else:
         visibility_text = font.render("LOST",True,(255, 0, 0))
 
     screen.blit(visibility_text,(DEBUG_X, 290))
+    screen.blit(lock_text,(DEBUG_X, 310))
 
     angle_text = font.render(f"Angle Error:{sensor.last_angle_error:.1f}°",True,(255, 255, 0))
 
