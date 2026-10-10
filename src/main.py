@@ -11,6 +11,11 @@ from guidance.pure_pursuit import PurePursuit
 from guidance.lead_pursuit import LeadPursuit
 from guidance.proportional_navigation import ProportionalNavigation
 
+from ui.debug_panel import draw_debug_panel
+from ui.result_panel import draw_results_panel
+from ui.trajectories import draw_trajectories
+from ui.entities import draw_entities
+
 
 # ==================================================
 # INITIALISATION
@@ -152,38 +157,28 @@ while running:
     # ----------------------------------------------
     # TRAJECTOIRES
     # ----------------------------------------------
+    draw_trajectories(
+        screen,
+        target,
+        interceptor_red,
+        interceptor_blue,
+        interceptor_green
+    )
 
-    if len(target.history) > 1:
-        pygame.draw.lines(screen,(180, 180, 180),False,target.history,2)
-            
-    if len(interceptor_red.history) > 1:
-        pygame.draw.lines(screen,(255, 50, 50),False,interceptor_red.history,2)
-            
-    if len(interceptor_blue.history) > 1:
-        pygame.draw.lines(screen,(0, 0, 255),False,interceptor_blue.history,2)
-
-    if len(interceptor_green.history) > 1:
-        pygame.draw.lines(screen,(0, 180, 0),False,interceptor_green.history,2) 
-            
     # ----------------------------------------------
     # ENTITES
     # ----------------------------------------------
 
-    pygame.draw.circle(screen,(0, 0, 0),(int(target.x), int(target.y)),8)
-        
-    pygame.draw.circle(screen,(255, 0, 0),(int(interceptor_red.x), int(interceptor_red.y)),8)
-    line_length=30
-    end_x=interceptor_red.x+line_length*math.cos(math.radians(interceptor_red.heading))
-    end_y=interceptor_red.y+line_length*math.sin(math.radians(interceptor_red.heading)) 
-    pygame.draw.line(screen,(255, 0, 0),(int(interceptor_red.x), int(interceptor_red.y)),(int(end_x), int(end_y)),2)    
-
-    pygame.draw.circle(screen,(0, 0, 255),(int(interceptor_blue.x), int(interceptor_blue.y)),8)
-
-    pygame.draw.circle(screen,(0, 180, 0),(int(interceptor_green.x), int(interceptor_green.y)),8)   
-    if measurement is not None:
-        pygame.draw.circle(screen,(255,165,0),(int(measurement[0]), int(measurement[1])),4)
-    if target_visible:
-        pygame.draw.circle(screen,(255,0,255),(int(track.x), int(track.y)),4)   
+    draw_entities(
+        screen,
+        target,
+        interceptor_red,
+        interceptor_blue,
+        interceptor_green,
+        measurement,
+        track,
+        target_visible
+    ) 
     # ----------------------------------------------
     # CHRONO
     # ----------------------------------------------
@@ -197,110 +192,27 @@ while running:
     # ----------------------------------------------
 
     DEBUG_X=SIM_WIDTH+20
-
-
-    #RESULTS
-    result_title=font.render("-----RESULTS-----",True,(0,0,0))
-    screen.blit(result_title,(DEBUG_X, 680))
-
-    heading_red=font.render(f"Cap Rouge:{interceptor_red.heading:.1f}",True,(255,0,0))
+    draw_debug_panel(
+        screen,
+        font,
+        DEBUG_X,
+        sensor,
+        track,
+        interceptor_red,
+        interceptor_blue,
+        interceptor_green,
+        target_visible
+    )
+    draw_results_panel(
+        screen,
+        font,
+        DEBUG_X,
+        interceptor_red,
+        interceptor_blue,
+        interceptor_green,
+        simulation_finished
+    )
     
-
-    heading_blue=font.render(f"Cap Bleu:{interceptor_blue.heading:.1f}",True,(0,0,255))
-    
-
-    heading_green=font.render(f"Cap Vert:{interceptor_green.heading:.1f}",True,(0,180,0))
-    
-
-    screen.blit(font.render("Noir : Cible",True,(0, 0, 0)),(DEBUG_X-360, 10))
-    screen.blit(font.render("Rouge : Pure Pursuit",True,(255, 0, 0)),(DEBUG_X-360, 50))
-    screen.blit(font.render("Bleu : Lead Pursuit",True,(0, 0, 255)),(DEBUG_X-360, 90))
-    screen.blit(font.render("Vert : Proportional Navigation",True,(0, 180, 0)),(DEBUG_X-360, 130)) 
-    
-    if target_visible:
-        visibility_text=font.render("VISIBLE",True,(0,180,0))
-    else:
-        visibility_text=font.render("LOST",True,(255,0,0))
-    
-
-    track_text=font.render(f"Track : ({track.x:.1f},{track.y:.1f})",True,(255,0,255))
-    
-    track_valid_text=font.render("TRACK VALID" if track.valid else "TRACK LOST",True,(0,255,0) if track.valid else (255,0,0))
-
-
-    if not track.valid:
-        track_status_text="TRACK LOST"
-    elif track.predicted:
-        track_status_text="TRACK PREDICTED"
-    else:
-        track_status_text="TRACK VALID"
-    track_status_surface=font.render(track_status_text,True,((255,0,0) if not track.valid else (255,165,0) if track.predicted else (0,255,0)))
-    
-
-    confidence_texte=font.render(f"Confidence:{track.confidence:.0f}%",True,(255,0,0))
-
-
-    angle_text=font.render(f"Angle Error:{sensor.last_angle_error:.1f}°",True,(255,255,0))
-    
-    prediction_age_text=font.render(f"Prediction Age:{track.time_since_measurement:.1f}s",True,(255,255,0))
-    #TITRE
-    debug_title=font.render("DEBUG PANEL",True,(0,0,0))
-    screen.blit(debug_title,(DEBUG_X,20))
-
-    #SENSOR
-    sensor_titel=font.render("-----SENSOR-----",True,(0,0,0))
-    screen.blit(sensor_titel,(DEBUG_X, 70))
-    screen.blit(visibility_text,(DEBUG_X, 110))
-    screen.blit(angle_text,(DEBUG_X, 150))
-
-    #TRACK
-    track_title=font.render("-----TRACK-----",True,(0,0,0))
-    screen.blit(track_title,(DEBUG_X, 220))
-    screen.blit(track_status_surface,(DEBUG_X, 260))    
-    screen.blit(track_text,(DEBUG_X, 300))
-    screen.blit(confidence_texte,(DEBUG_X, 340))    
-    screen.blit(prediction_age_text,(DEBUG_X, 380))
-
-    #INTERCEPTORS
-    interceptor_title=font.render("-----INTERCEPTORS-----",True,(0,0,0))
-    screen.blit(interceptor_title,(DEBUG_X, 460))
-    screen.blit(heading_red,(DEBUG_X, 510))
-    screen.blit(heading_blue,(DEBUG_X, 550))
-    screen.blit(heading_green,(DEBUG_X, 590))
-
-
-    # ----------------------------------------------
-    # RESULTATS
-    # ----------------------------------------------
-
-    if interceptor_red.interception_time is not None:
-        screen.blit(font.render(f"Pure : "f"{interceptor_red.interception_time:.2f} s",True,(255, 0, 0)),(DEBUG_X, 730))
-
-    if interceptor_blue.interception_time is not None:
-        screen.blit(font.render(f"Lead : "f"{interceptor_blue.interception_time:.2f} s",True,(0, 0, 255)),(DEBUG_X, 770))
-
-    if interceptor_green.interception_time is not None:
-        screen.blit(font.render(f"Proportional : "f"{interceptor_green.interception_time:.2f} s",True,(0, 180, 0)),(DEBUG_X, 810))  
-
-    # ----------------------------------------------
-    # GAGNANT
-    # ----------------------------------------------
-
-    if simulation_finished:
-
-        winner = "EGALITE"
-
-        if (interceptor_red.interception_time<interceptor_blue.interception_time and interceptor_red.interception_time<interceptor_green.interception_time):
-            winner = "PURE PURSUIT"
-
-        elif (interceptor_blue.interception_time<interceptor_red.interception_time and interceptor_blue.interception_time<interceptor_green.interception_time):
-            winner = "LEAD PURSUIT"
-
-        elif (interceptor_green.interception_time<interceptor_red.interception_time and interceptor_green.interception_time<interceptor_blue.interception_time):
-            winner = "PROPORTIONAL NAVIGATION"
-
-        winner_text = font.render(f"Gagnant : {winner}",True,(0, 150, 0))
-        screen.blit(winner_text,(DEBUG_X, 850))
             
             
 

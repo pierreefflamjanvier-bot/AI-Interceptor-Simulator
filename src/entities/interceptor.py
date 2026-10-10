@@ -17,8 +17,6 @@ class Interceptor:
     def update(self, dt, track):
 
         desired_heading=(self.strategy.compute_direction(self, track))
-        print(type(desired_heading))
-        print(desired_heading)
         heading_error=(desired_heading-self.heading)
 
         while heading_error>180:
