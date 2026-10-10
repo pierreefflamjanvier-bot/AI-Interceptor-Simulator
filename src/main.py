@@ -37,7 +37,7 @@ interceptor_red = Interceptor(x=400,y=200,speed=200,strategy=PurePursuit(),headi
 interceptor_blue = Interceptor(x=400,y=200,speed=200,strategy=LeadPursuit(),heading=0,max_turn_rate=120,max_acceleration=220)
 interceptor_green = Interceptor(x=400,y=200,speed=200,strategy=ProportionalNavigation(),heading=0,max_turn_rate=120,max_acceleration=220)
 
-sensor = Sensor(position_noise=30, detection_range=700)
+sensor = Sensor(position_noise=30, detection_range=700, field_of_view=180)
 track=Track()
 # ==================================================
 # VARIABLES
@@ -212,8 +212,25 @@ while running:
 
     track_text=font.render(f"Track : ({track.x:.1f},{track.y:.1f})",True,(255,0,255))
     screen.blit(track_text,(20, 400))
-    track_valid_text=font.render("TRACK VALI" if track.valid else "TRACK LOST",True,(0,255,0) if track.valid else (255,0,0))
+    track_valid_text=font.render("TRACK VALID" if track.valid else "TRACK LOST",True,(0,255,0) if track.valid else (255,0,0))
 
+
+    if not track.valid:
+        track_text="TRACK LOST"
+    elif track.predicted:
+        track_text="TRACK PREDICTED"
+    else:
+        track_text="TRACK VALID"
+    track_stattus=font.render(track_text,True,((255,0,0) if not track.valid else (255,165,0) if track.predicted else(0,255,0)))
+    screen.blit(track_stattus,(20, 450))
+
+    confidence_texte=font.render(f"Confidence:{track.confidence:.0f}%",True,(255,0,0))
+    screen.blit(confidence_texte,(20, 500))
+
+    angle_text=font.render(f"Angle Error:{sensor.last_angle_error:.1f}°",True,(255,255,0))
+    screen.blit(angle_text,(20, 550))
+    prediction_age_text=font.render(f"Prediction Age:{track.time_since_measurement:.1f}s",True,(255,255,0))
+    screen.blit(prediction_age_text,(20, 600))
     # ----------------------------------------------
     # RESULTATS
     # ----------------------------------------------
